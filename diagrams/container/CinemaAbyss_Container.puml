@@ -1,0 +1,57 @@
+@startuml CinemaAbyss_Container
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Container.puml
+left to right direction
+skinparam nodesep 100
+
+title Целевая архитектура "КиноБездна"
+
+Person(user, "Пользователь", "Пользуется сервисом с ноутбука, Smart TV или мобильного устройства")
+
+System_Boundary(cinemaAbyss, "КиноБездна") {
+    Container(gateway, "API Gateway", "HTTP proxy", "Единственная публичная точка входа")
+
+    Container(usersService, "Сервис пользователей", "Go / REST", "Учетные записи и профиль пользователей")
+    Container(moviesService, "Сервис каталога фильмов", "Go / REST", "Каталог фильмов, жанры и метаданные")
+    Container(subscriptionService, "Сервис подписок", "Go / REST", "Управление планами подписок")
+    Container(paymentService, "Сервис  платежей", "Go / REST / Kafka", "Управление платежными операциями")
+    Container(userActivityService, "Сервис просмотров и отзывов", "Go / REST / Kafka", "Принимает запросы на регистрацию просмотров через API и асинхронно обрабатывает их из Kafka; хранит оценки и отзывы")
+
+    ContainerQueue(kafka, "Kafka", "Message broker", "Асинхронный обмен запросами на регистрацию просмотров, запросами на оплату и результатами платежей")
+
+    ContainerDb(usersServiceDb, "БД пользователей", "PostgreSQL", "Данные учетных записей")
+    ContainerDb(moviesServiceDb, "БД каталога", "PostgreSQL", "Фильмы и жанры")
+    ContainerDb(subscriptionServiceDb, "БД подписок и платежей", "PostgreSQL", "Подписки и платежные операции")
+    ContainerDb(userActivityServiceDb, "БД просмотров и отзывов", "PostgreSQL", "История просмотров, оценки и отзывы")
+}
+
+System_Ext(paymentProvider, "Платёжная система", "Внешняя система обработки платежей")
+System_Ext(onlineCinemas, "Онлайн-кинотеатры", "Внешние партнёрские онлайн-кинотеатры")
+System_Ext(objectStorage, "S3", "Внешнее объектное хранилище контента")
+System_Ext(recommendations, "Внешняя рекомендательная система", "Обменивается сообщениями для рекомендаций через RabbitMQ")
+
+Rel(user, gateway, "Вызывает публичный API", "HTTPS / JSON")
+
+Rel(gateway, usersService, "Маршрутизирует /api/users", "HTTP / JSON")
+Rel(gateway, moviesService, "Маршрутизирует /api/movies", "HTTP / JSON")
+Rel(gateway, subscriptionService, "Маршрутизирует /api/subscriptions", "HTTP / JSON")
+Rel(gateway, paymentService, "Маршрутизирует /api/payments", "HTTP / JSON")
+Rel(gateway, userActivityService, "Маршрутизирует /api/user-activities", "HTTP / JSON")
+
+Rel(usersService, usersServiceDb, "Читает и записывает данные пользователей", "SQL")
+Rel(moviesService, moviesServiceDb, "Читает и записывает данные каталога", "SQL")
+Rel(subscriptionService, subscriptionServiceDb, "Читает и записывает подписки и платежи", "SQL")
+Rel(userActivityService, userActivityServiceDb, "Читает и записывает просмотры и отзывы", "SQL")
+
+Rel(subscriptionService, kafka, "Публикует запросы на оплату", "Kafka / payment-requests")
+Rel(kafka, paymentService, "Передает запросы на оплату", "Kafka / payment-requests")
+Rel(paymentService, kafka, "Публикует результаты платежей", "Kafka / payment-events")
+Rel(kafka, subscriptionService, "Передает результаты платежей", "Kafka / payment-events")
+Rel(userActivityService, kafka, "Публикует запросы на регистрацию просмотров", "Kafka / view-registration-requests")
+Rel(kafka, userActivityService, "Передает запросы для асинхронной регистрации просмотров", "Kafka / view-registration-requests")
+
+Rel_R(paymentService, paymentProvider, "Обрабатывает платежи", "HTTPS / API")
+Rel(moviesService, onlineCinemas, "Обменивается каталогом и метаданными после миграции", "HTTPS / API")
+Rel(moviesService, objectStorage, "Хранит и получает постеры и медиаконтент", "S3 API")
+Rel(recommendations, userActivityService, "Обменивается историей просмотров и оценками для рекомендаций", "RabbitMQ")
+
+@enduml
