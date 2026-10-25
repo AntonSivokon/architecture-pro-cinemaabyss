@@ -5,7 +5,7 @@ global:
 
 # Image pull secrets
 imagePullSecrets:
-  dockerconfigjson: ewoJImF1dGhzIjogewoJCSJnaGNyLmlvIjogewoJCQkiYXV0aCI6
+  dockerconfigjson: ewogICAgImF1dGhzIjogewogICAgICAgICJnaGNyLmlvIjogewogICAgICAgICAgICAiYXV0aCI6ICJRVzUwYjI1VGFYWnZhMjl1T21kb2NGOUxOVlpxVFVGbGVtSnRaWHBCYURRemEwVjFZM0ZzYmpsMWVUZE5VWFV3TWtOS2RWST0iCiAgICAgICAgfQogICAgfSwKICAgICJjcmVkc1N0b3JlIjogImRlc2t0b3AiLAogICAgImN1cnJlbnRDb250ZXh0IjogImRlc2t0b3AtbGludXgiLAogICAgInBsdWdpbnMiOiB7CiAgICAgICAgIi14LWNsaS1oaW50cyI6IHsKICAgICAgICAgICAgImVuYWJsZWQiOiAidHJ1ZSIKICAgICAgICB9LAogICAgICAgICJhaSI6IHsKICAgICAgICAgICAgImhvb2tzIjogImJ1aWxkLGJ1aWxkeCBidWlsZCxydW4sY29tcG9zZSIKICAgICAgICB9LAogICAgICAgICJjb21wb3NlIjogewogICAgICAgICAgICAiaG9va3MiOiAibG9ncyxjb21wb3NlIGxvZ3MsY29tcG9zZSBhdHRhY2gsY29tcG9zZSB1cCIKICAgICAgICB9LAogICAgICAgICJkZWJ1ZyI6IHsKICAgICAgICAgICAgImhvb2tzIjogImV4ZWMiCiAgICAgICAgfQogICAgfSwKICAgICJmZWF0dXJlcyI6IHsKICAgICAgICAiaG9va3MiOiAidHJ1ZSIKICAgIH0KfQ==
 # Database configuration
 database:
   host: postgres
@@ -33,7 +33,7 @@ database:
 monolith:
   enabled: true
   image:
-    repository: ghcr.io/db-exp/cinemaabysstest/monolith
+    repository: ghcr.io/antonsivokon/architecture-pro-cinemaabyss/monolith
     tag: latest
     pullPolicy: Always
   replicas: 1
@@ -53,7 +53,7 @@ monolith:
 proxyService:
   enabled: true
   image:
-    repository: ghcr.io/db-exp/cinemaabysstest/proxy-service
+    repository: ghcr.io/antonsivokon/architecture-pro-cinemaabyss/proxy-service
     tag: latest
     pullPolicy: Always
   replicas: 1
@@ -73,7 +73,7 @@ proxyService:
 moviesService:
   enabled: true
   image:
-    repository: ghcr.io/db-exp/cinemaabysstest/movies-service
+    repository: ghcr.io/antonsivokon/architecture-pro-cinemaabyss/movies-service
     tag: latest
     pullPolicy: Always
   replicas: 1
@@ -93,7 +93,7 @@ moviesService:
 eventsService:
   enabled: true
   image:
-    repository: ghcr.io/db-exp/cinemaabysstest/events-service
+    repository: ghcr.io/antonsivokon/architecture-pro-cinemaabyss/events-service
     tag: latest
     pullPolicy: Always
   replicas: 1
@@ -182,4 +182,4 @@ ingress:
 config:
   # Strangler Fig configuration
   gradualMigration: "true"
-  moviesMigrationPercent: "100"
+  moviesMigrationPercent: "50"
