@@ -23,6 +23,17 @@ spec:
       labels:
         app: movies-service
     spec:
+      initContainers:
+      - name: wait-for-postgres
+        image: {{ .Values.database.image.repository }}:{{ .Values.database.image.tag }}
+        imagePullPolicy: {{ .Values.database.image.pullPolicy }}
+        command:
+        - sh
+        - -c
+        - until pg_isready -h "$DB_HOST" -p "$DB_PORT" -U "$DB_USER" -d "$DB_NAME"; do echo "Waiting for PostgreSQL"; sleep 2; done
+        envFrom:
+        - configMapRef:
+            name: cinemaabyss-config
       containers:
       - name: movies-service
         image: {{ .Values.moviesService.image.repository }}:{{ .Values.moviesService.image.tag }}
